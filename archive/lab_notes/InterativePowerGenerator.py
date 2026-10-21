@@ -39,15 +39,15 @@ def create_data(year, month, latitude, longitude, tilt, orientation, capacity, s
     return df
 
 # Initial parameters
-initial_latitude = 53.5
-initial_longitude = -2.7
-initial_tilt = 33
-initial_orientation = 200
-initial_capacity = 3.18
+initial_latitude = 48.1089
+initial_longitude = 37.5357
+initial_tilt = 70.17
+initial_orientation = 214.87
+initial_capacity = 1.94
 initial_shrinkage_factor = 0.0005
 
 # Generate initial data
-new_train_data_1 = create_data(2019, 3, 53.5, -2.7, initial_tilt, initial_orientation, initial_capacity, initial_shrinkage_factor)
+new_train_data_1 = create_data(2019, 3, initial_latitude, initial_longitude, initial_tilt, initial_orientation, initial_capacity, initial_shrinkage_factor)
 new_train_data_1['timestamp_utc'] = pd.to_datetime(new_train_data_1['timestamp_utc'])
 
 # Sample true data (Replace with actual data)
