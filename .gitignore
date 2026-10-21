@@ -17,6 +17,7 @@ venv/
 # Proprietary / confidential source material
 Powerverse Solar Inference.pdf
 SolarPanelAnnoted.pdf
+!docs/SolarPanelAnnoted.pdf
 SolarPanel_briefing_Feb.pages
 *.pages
 

@@ -2,7 +2,27 @@
 
 Given a 30-minute generation time series and a known location, recover the array’s **tilt**, **orientation**, and **DC capacity**. This is an inverse / calibration problem: a physics forward model maps parameters to a generation curve; the task is to invert that map.
 
-This repository is a cleaned public snapshot of an Imperial College group project with Powerverse. Real customer generation is **not** included. What is public is the method, a reproducible pvlib simulator, one synthetic sample, and the original lab metrics — reported honestly.
+This repository is a cleaned public snapshot of an Imperial College group project with Powerverse. The raw customer time series are **not** included. What is public is the method, a reproducible pvlib simulator, one synthetic sample, the preprocessing plots below, and the original lab metrics — reported honestly.
+
+The group write-up is [`docs/SolarPanelAnnoted.pdf`](docs/SolarPanelAnnoted.pdf).
+
+## Background
+
+Powerverse runs a home energy optimiser. It needs a solar forecast, and a forecast needs the array’s size and the direction it faces. Customers often do not know those numbers. The brief asks whether generation data plus a known location is enough to recover them.
+
+![Tariff, forecast, and battery dispatch around solar generation](docs/figures/bg_home_energy.png)
+
+A fixed array is three numbers: tilt (angle up from horizontal), orientation (compass heading), and capacity (kWp).
+
+![Tilt and orientation of a fixed array](docs/figures/bg_tilt_orientation.png)
+
+On a clear day those two angles move the peak. East-facing arrays peak in the morning; a steeper tilt raises and narrows that peak. A west-facing array peaks in the afternoon.
+
+![Clear-sky output for east 30°, east 60°, and west 30°](docs/figures/bg_clearsky_orientation.png)
+
+A real day does not look like that curve. Clouds break the envelope, which is why a fit on raw kWh is not the same problem as a fit on clear-sky irradiance.
+
+![Measured generation on a mixed-weather day](docs/figures/bg_measured_mixed_day.png)
 
 ## Problem
 
@@ -42,6 +62,22 @@ The forward model uses pvlib solar position and plane-of-array irradiance at 30-
 
 [`notebooks/05_lstm_sketch.ipynb`](notebooks/05_lstm_sketch.ipynb) is an unrun sequence-model sketch. It is not a result.
 
+## Preprocessing
+
+These three figures are the feature pass on the four sites, not model scores. Site labels only; coordinates stay out of the repository.
+
+A full year of 30-minute kWh, folded onto the hour of day. Orientation is what moves the clock time of the peak. The vertical spread at each hour is weather, not a second array.
+
+![Yearly generation folded onto the hour of day](docs/figures/pre_daily_timeline_all_sites.png)
+
+The same series summed to one energy total per day. Each site in this extract covers a different year, and the seasonal hump is the signal tilt is supposed to change.
+
+![Daily energy totals for the four sites](docs/figures/pre_daily_totals_all_sites.png)
+
+Daily result of that pass: `find_peaks` on the daily totals, then a UnivariateSpline through the upper envelope. The green curve is the clear-day seasonal shape. Those features were specified and were not passed into the network.
+
+![Daily peak envelopes for the four sites](docs/figures/02_spline_daily_envelope.png)
+
 ## Results
 
 Figures below are from the original lab run. They were not regenerated for this snapshot.
@@ -52,10 +88,6 @@ Clear-sky week and annual envelope from the pvlib generator:
 
 ![Annual synthetic generation with 7-day average](docs/figures/01_annual_generation.png)
 
-Spline envelope on daily totals of the four real sites (local data only; not in git):
-
-![Peak spline envelopes on four real sites](docs/figures/02_spline_daily_envelope.png)
-
 Inverse-net snapshot on a random 80/20 **row** split of synthetic 30-minute samples:
 
 | Target | MAE | MAPE |
@@ -64,9 +96,7 @@ Inverse-net snapshot on a random 80/20 **row** split of synthetic 30-minute samp
 | `pv_array_tilt` | 0.07 | 27.32% |
 | `pv_array_a_orientation` | 0.07 | 43.93% |
 
-MAE in native units is implausibly small next to those MAPEs. Relative-error histograms for capacity have a mass near zero and a long tail of thousands of percent. That pattern is what a denormalisation or wrong-column inverse-transform looks like. **Do not read this table as a claim that capacity is identified.**
-
-![Capacity relative-error histogram](docs/figures/04_error_hist_capacity.png)
+MAE in native units is implausibly small next to those MAPEs. In the lab notes the capacity relative-error histogram has a mass near zero and a long tail of thousands of percent, which is what a denormalisation or wrong-column inverse-transform looks like. **Do not read this table as a claim that capacity is identified.** That histogram is omitted here; the plots above are the preprocessing analysis.
 
 Validation is a shuffled row split, not site-level holdout and not temporal extrapolation. Training rows from the same site appear on both sides of the split.
 
