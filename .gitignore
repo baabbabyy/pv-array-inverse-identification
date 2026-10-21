@@ -1,0 +1,44 @@
+# OS / editor
+.DS_Store
+**/.DS_Store
+.vscode/
+.idea/
+
+# Python
+**/__pycache__/
+**/*.pyc
+.venv/
+venv/
+.env
+
+# Jupyter
+**/.ipynb_checkpoints/
+
+# Proprietary / confidential source material
+Powerverse Solar Inference.pdf
+SolarPanelAnnoted.pdf
+SolarPanel_briefing_Feb.pages
+*.pages
+
+# Real Powerverse site data (not for public GitHub)
+data/real/**
+!data/real/README.md
+Dataset/
+Archieve/**/*.csv
+archive/**/*.csv
+archive/**/*.xlsx
+
+# Regenerable synthetic panels (keep only data/synthetic/sample_site_0.csv)
+data/synthetic/generated/
+Main/VirtualPowerGeneration/Data_folder/
+
+# Derived analytic overlays of real sites
+**/analytic_site_*.csv
+**/analytic_train_data_*.csv
+**/site_[0-9]_data.csv
+**/train_data_*.csv
+**/validation_Data.csv
+**/solar_data.csv
+**/solar_data_angles.csv
+**/site_params.csv
+**/Excel.xlsx
